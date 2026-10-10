@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}Topics — AI Study Planner{% endblock %}
+{% block page_title %}Topics{% endblock %}
+
+{% block content %}
+<div class="page-content__header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+    <div>
+        <h1 class="page-content__title">Topics & Syllabus</h1>
+        <p class="page-content__subtitle">Manage syllabus topics, estimated effort, difficulty, and study progress.</p>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+        <button id="btn-open-add-topic" class="btn btn--primary">
+            <span>➕ Add Topic</span>
+        </button>
+    </div>
+</div>
+
+<!-- Alert notification message area -->
+<div id="topic-alert" class="alert alert--error" style="display: none;">
+    <span id="topic-alert-text"></span>
+    <button type="button" id="topic-alert-close" class="modal__close" style="font-size:1rem;">&times;</button>
+</div>
+
+<!-- Filter / Selector Bar -->
+<div class="card" style="margin-bottom: 24px;">
+    <div class="card__body" style="padding: 16px 24px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
+            <div style="display:flex; align-items:center; gap:12px; flex:1; min-width:260px;">
+                <label for="subject-filter" class="form-label" style="margin-bottom:0; white-space:nowrap;">Select Subject:</label>
+                <select id="subject-filter" class="form-select" style="max-width:320px;">
+                    <option value="" disabled selected>Loading subjects...</option>
+                </select>
+            </div>
+            <div id="subject-summary-stats" style="display:flex; gap:16px; font-size:0.85rem; color:var(--color-text-secondary);">
+                <!-- Dynamic subject overview details -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Topics Card -->
+<div class="card">
+    <div class="card__header">
+        <h2 class="card__title" id="topics-card-title">Topics</h2>
+        <span class="card__badge" id="topics-count-badge">0 topics</span>
+    </div>
+    <div class="card__body card__body--flush">
+        <!-- Loading State -->
+        <div id="topics-loading" class="placeholder-block">
+            <div class="placeholder-block__icon">⏳</div>
+            <p class="placeholder-block__text">Loading topics...</p>
+        </div>
+
+        <!-- No Subjects State -->
+        <div id="topics-no-subjects" class="placeholder-block" style="display: none;">
+            <div class="placeholder-block__icon">📘</div>
+            <p class="placeholder-block__text">No subjects found. Please add a subject first before managing topics.</p>
+            <a href="/subjects" class="btn btn--primary btn--sm" style="margin-top:12px;">Go to Subjects</a>
+        </div>
+
+        <!-- Empty State (Subject has no topics) -->
+        <div id="topics-empty" class="placeholder-block" style="display: none;">
+            <div class="placeholder-block__icon">📝</div>
+            <p class="placeholder-block__text">No topics for this subject yet. Click "Add Topic" to add your syllabus items.</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="topics-error" class="placeholder-block" style="display: none;">
+            <div class="placeholder-block__icon">⚠️</div>
+            <p class="placeholder-block__text" id="topics-error-text">Failed to load topics.</p>
+            <button id="btn-retry-topics" class="btn btn--secondary btn--sm" style="margin-top:12px;">Retry</button>
+        </div>
+
+        <!-- Topics Table Container -->
+        <div id="topics-table-wrapper" class="data-table-container" style="display: none;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 48px; text-align: center;">Done</th>
+                        <th>Topic Title</th>
+                        <th>Est. Hours</th>
+                        <th>Difficulty</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="topics-tbody">
+                    <!-- Populated dynamically via JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add / Edit Topic Modal -->
+<div id="topic-modal-overlay" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-topic-title">
+        <div class="modal__header">
+            <h3 id="modal-topic-title" class="modal__title">Add New Topic</h3>
+            <button id="modal-topic-close" class="modal__close" aria-label="Close modal">&times;</button>
+        </div>
+        <form id="topic-form">
+            <div class="modal__body">
+                <input type="hidden" id="topic-form-id" value="">
+                
+                <div class="form-group">
+                    <label class="form-label" for="topic-subject-select">Subject <span style="color:var(--color-danger)">*</span></label>
+                    <select id="topic-subject-select" class="form-select" required>
+                        <!-- Options populated via JS -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="topic-title">Topic Title <span style="color:var(--color-danger)">*</span></label>
+                    <input type="text" id="topic-title" class="form-input" placeholder="e.g., Dynamic Programming Basics" required maxlength="150">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="topic-estimated-hours">Estimated Hours <span style="color:var(--color-danger)">*</span></label>
+                        <input type="number" id="topic-estimated-hours" class="form-input" min="0.25" max="50" step="0.25" value="1.5" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="topic-difficulty">Difficulty (1–5)</label>
+                        <select id="topic-difficulty" class="form-select">
+                            <option value="1">1 — Very Easy</option>
+                            <option value="2">2 — Easy</option>
+                            <option value="3" selected>3 — Moderate</option>
+                            <option value="4">4 — Challenging</option>
+                            <option value="5">5 — Very Hard</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="topic-status">Status</label>
+                    <select id="topic-status" class="form-select">
+                        <option value="not_started" selected>Not Started</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+
+                <div id="modal-topic-error" class="alert alert--error" style="display:none; margin-top:12px; margin-bottom:0;"></div>
+            </div>
+            <div class="modal__footer">
+                <button type="button" id="modal-topic-cancel" class="btn btn--secondary">Cancel</button>
+                <button type="submit" id="modal-topic-submit" class="btn btn--primary">
+                    <span id="modal-topic-submit-label">Save Topic</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/topics.js') }}"></script>
+{% endblock %}

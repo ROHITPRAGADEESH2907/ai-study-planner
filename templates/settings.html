@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Settings — AI Study Planner{% endblock %}
+{% block page_title %}Settings{% endblock %}
+
+{% block content %}
+<div class="page-content__header">
+    <h1 class="page-content__title">Study Preferences & Capacity</h1>
+    <p class="page-content__subtitle">Customize your daily study limits, weekend capacity, and revision buffers used by the heuristic planning engine.</p>
+</div>
+
+<!-- Alert notification message area -->
+<div id="settings-alert" class="alert alert--error" style="display: none;">
+    <span id="settings-alert-text"></span>
+    <button type="button" id="settings-alert-close" class="modal__close" style="font-size:1rem;">&times;</button>
+</div>
+
+<!-- Loading State -->
+<div id="settings-loading" class="placeholder-block" style="background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-md);">
+    <div class="placeholder-block__icon">⏳</div>
+    <p class="placeholder-block__text">Loading study preferences...</p>
+</div>
+
+<!-- Error State -->
+<div id="settings-error" class="placeholder-block" style="display: none; background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-md);">
+    <div class="placeholder-block__icon">⚠️</div>
+    <p class="placeholder-block__text" id="settings-error-text">Failed to load study settings.</p>
+    <button id="btn-retry-settings" class="btn btn--secondary btn--sm" style="margin-top:16px;">Retry</button>
+</div>
+
+<!-- Settings Form Card -->
+<div id="settings-card" class="card" style="display: none; max-width: 760px;">
+    <div class="card__header">
+        <h2 class="card__title">Study Capacity Configuration</h2>
+        <span class="card__badge" id="settings-updated-badge">Default</span>
+    </div>
+    <div class="card__body">
+        <form id="settings-form">
+
+            <div class="form-row">
+                <!-- Weekday Study Hours -->
+                <div class="form-group">
+                    <label class="form-label" for="setting-weekday-hours">
+                        Weekday Study Capacity (hours/day) <span style="color:var(--color-danger)">*</span>
+                    </label>
+                    <input type="number" id="setting-weekday-hours" class="form-input" min="0.5" max="24" step="0.5" required placeholder="3.0">
+                    <div style="font-size:0.78rem; color:var(--color-text-muted); margin-top:4px;">
+                        Allocated daily study hours from Monday to Friday (0.5 to 24.0).
+                    </div>
+                </div>
+
+                <!-- Weekend Study Hours -->
+                <div class="form-group">
+                    <label class="form-label" for="setting-weekend-hours">
+                        Weekend Study Capacity (hours/day) <span style="color:var(--color-danger)">*</span>
+                    </label>
+                    <input type="number" id="setting-weekend-hours" class="form-input" min="0.5" max="24" step="0.5" required placeholder="6.0">
+                    <div style="font-size:0.78rem; color:var(--color-text-muted); margin-top:4px;">
+                        Allocated daily study hours on Saturday and Sunday (0.5 to 24.0).
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exam Buffer Days -->
+            <div class="form-group" style="margin-top: 12px;">
+                <label class="form-label" for="setting-buffer-days">
+                    Exam Buffer Days <span style="color:var(--color-danger)">*</span>
+                </label>
+                <input type="number" id="setting-buffer-days" class="form-input" min="0" max="30" step="1" required placeholder="2" style="max-width: 320px;">
+                <div style="font-size:0.78rem; color:var(--color-text-muted); margin-top:4px;">
+                    Days before each exam reserved exclusively for revision blocks (0 to 30 days).
+                </div>
+            </div>
+
+            <!-- Notice / Summary Info Box -->
+            <div style="background: #F8FAFC; border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 16px; margin: 24px 0;">
+                <div style="display:flex; align-items:flex-start; gap:12px;">
+                    <span style="font-size:1.2rem; flex-shrink:0;">💡</span>
+                    <div style="font-size:0.85rem; color:var(--color-text-secondary); line-height:1.5;">
+                        <strong style="color:var(--color-text);">How these settings impact your study schedule:</strong><br>
+                        When generating a study plan, the planner schedules core syllabus topics up to your daily capacity limits.
+                        During the pre-exam buffer window, high-priority revision sessions will take precedence to prepare you before the exam deadline.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div style="display:flex; justify-content:flex-end; gap:12px;">
+                <button type="button" id="btn-reset-settings" class="btn btn--secondary">
+                    Reset
+                </button>
+                <button type="submit" id="btn-save-settings" class="btn btn--primary">
+                    <span id="btn-save-label">Save Preferences</span>
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+{% endblock %}

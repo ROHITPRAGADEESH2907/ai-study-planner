@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — AI Study Planner{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Overview Stats Row -->
+<div class="stat-row">
+    <div class="stat-card">
+        <div class="stat-card__icon stat-card__icon--primary">📘</div>
+        <div class="stat-card__info">
+            <div class="stat-card__label">Subjects</div>
+            <div class="stat-card__value" id="stat-subjects">—</div>
+            <div class="stat-card__sub">Active courses</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card__icon stat-card__icon--accent">📝</div>
+        <div class="stat-card__info">
+            <div class="stat-card__label">Topics</div>
+            <div class="stat-card__value" id="stat-topics">—</div>
+            <div class="stat-card__sub">Total study items</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card__icon stat-card__icon--success">✅</div>
+        <div class="stat-card__info">
+            <div class="stat-card__label">Completed</div>
+            <div class="stat-card__value" id="stat-completed">—</div>
+            <div class="stat-card__sub">Topics finished</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card__icon stat-card__icon--warning">⏳</div>
+        <div class="stat-card__info">
+            <div class="stat-card__label">Study Hours</div>
+            <div class="stat-card__value" id="stat-hours">—</div>
+            <div class="stat-card__sub">Total planned</div>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard Cards -->
+<div class="dashboard-grid">
+
+    <!-- Upcoming Exams -->
+    <div class="card">
+        <div class="card__header">
+            <h2 class="card__title">📅 Upcoming Exams</h2>
+            <span class="card__badge" id="exam-count-badge">—</span>
+        </div>
+        <div class="card__body card__body--flush" id="upcoming-exams-list">
+            <div class="placeholder-block">
+                <div class="placeholder-block__icon">📅</div>
+                <p class="placeholder-block__text">Upcoming exams will appear here once subjects are added.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Study Plan -->
+    <div class="card">
+        <div class="card__header">
+            <h2 class="card__title">📖 Today's Study Plan</h2>
+            <span class="card__badge" id="today-session-badge">—</span>
+        </div>
+        <div class="card__body card__body--flush" id="today-plan-list">
+            <div class="placeholder-block">
+                <div class="placeholder-block__icon">📖</div>
+                <p class="placeholder-block__text">Today's study sessions will appear here after generating a plan.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Progress Section -->
+<div class="dashboard-grid dashboard-grid--wide" style="margin-top:24px;">
+    <div class="card">
+        <div class="card__header">
+            <h2 class="card__title">📊 Progress Overview</h2>
+        </div>
+        <div class="card__body" id="progress-overview">
+            <div class="placeholder-block">
+                <div class="placeholder-block__icon">📊</div>
+                <p class="placeholder-block__text">Study progress and analytics will be displayed here in a future update.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

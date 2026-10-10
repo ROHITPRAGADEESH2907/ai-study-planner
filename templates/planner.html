@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Study Planner — AI Study Planner{% endblock %}
+{% block page_title %}Study Planner{% endblock %}
+
+{% block content %}
+<div class="page-content__header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+    <div>
+        <h1 class="page-content__title">Study Planner & Timetable</h1>
+        <p class="page-content__subtitle">Personalized, balanced daily study schedule with interleaving and revision buffers.</p>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+        <button id="btn-rebalance-plan" class="btn btn--secondary" title="Recalibrate based on completed topics and remaining days">
+            <span>🔄 Rebalance Plan</span>
+        </button>
+        <button id="btn-generate-plan" class="btn btn--primary" title="Generate or regenerate complete study plan">
+            <span>⚡ Generate Study Plan</span>
+        </button>
+    </div>
+</div>
+
+<!-- Alert notification message area -->
+<div id="planner-alert" class="alert alert--error" style="display: none;">
+    <span id="planner-alert-text"></span>
+    <button type="button" id="planner-alert-close" class="modal__close" style="font-size:1rem;">&times;</button>
+</div>
+
+<!-- Plan Summary Overview Stats -->
+<div id="planner-summary-stats" class="stat-row" style="display: none;">
+    <div class="stat-card">
+        <div class="stat-card__icon stat-card__icon--primary">📅</div>
+        <div class="stat-card__info">
+            <div class="stat-card__label">Total Sessions</div>
+            <div class="stat-card__value" id="summary-total-sessions">0</div>
+            <div class="stat-card__sub" id="summary-date-range">Timeline</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card__icon stat-card__icon--accent">⏱️</div>
+        <div class="stat-card__info">
+            <div class="stat-card__label">Planned Hours</div>
+            <div class="stat-card__value" id="summary-total-hours">0</div>
+            <div class="stat-card__sub">Study workload</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card__icon stat-card__icon--success">📖</div>
+        <div class="stat-card__info">
+            <div class="stat-card__label">Learning</div>
+            <div class="stat-card__value" id="summary-learning-sessions">0</div>
+            <div class="stat-card__sub">Core syllabus blocks</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card__icon stat-card__icon--warning">🎯</div>
+        <div class="stat-card__info">
+            <div class="stat-card__label">Revision</div>
+            <div class="stat-card__value" id="summary-revision-sessions">0</div>
+            <div class="stat-card__sub">Pre-exam buffers</div>
+        </div>
+    </div>
+</div>
+
+<!-- Planner Schedule Content -->
+<div id="planner-content-area">
+    <!-- Loading State -->
+    <div id="planner-loading" class="placeholder-block" style="background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-md);">
+        <div class="placeholder-block__icon">⏳</div>
+        <p class="placeholder-block__text" id="planner-loading-text">Loading study schedule...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="planner-empty" class="placeholder-block" style="display: none; background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-md);">
+        <div class="placeholder-block__icon">📅</div>
+        <p class="placeholder-block__text">No study sessions scheduled yet. Click "Generate Study Plan" to build your daily study roadmap.</p>
+        <button id="btn-empty-generate" class="btn btn--primary btn--sm" style="margin-top:16px;">⚡ Generate Study Plan</button>
+    </div>
+
+    <!-- Error State -->
+    <div id="planner-error" class="placeholder-block" style="display: none; background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-md);">
+        <div class="placeholder-block__icon">⚠️</div>
+        <p class="placeholder-block__text" id="planner-error-text">Failed to load study plan.</p>
+        <button id="btn-retry-planner" class="btn btn--secondary btn--sm" style="margin-top:16px;">Retry</button>
+    </div>
+
+    <!-- Days Container -->
+    <div id="planner-days-container" style="display: none;">
+        <!-- Day cards populated via JavaScript -->
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/planner.js') }}"></script>
+{% endblock %}

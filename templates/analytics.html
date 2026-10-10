@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics — AI Study Planner{% endblock %}
+{% block page_title %}Analytics{% endblock %}
+
+{% block content %}
+<div class="page-content__header">
+    <h1 class="page-content__title">Study Analytics & Progress</h1>
+    <p class="page-content__subtitle">Comprehensive overview of your course workload, syllabus completion rate, and study sessions.</p>
+</div>
+
+<!-- Alert notification message area -->
+<div id="analytics-alert" class="alert alert--error" style="display: none;">
+    <span id="analytics-alert-text"></span>
+    <button type="button" id="analytics-alert-close" class="modal__close" style="font-size:1rem;">&times;</button>
+</div>
+
+<!-- Loading State -->
+<div id="analytics-loading" class="placeholder-block" style="background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-md);">
+    <div class="placeholder-block__icon">⏳</div>
+    <p class="placeholder-block__text">Calculating study statistics...</p>
+</div>
+
+<!-- Error State -->
+<div id="analytics-error" class="placeholder-block" style="display: none; background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-md);">
+    <div class="placeholder-block__icon">⚠️</div>
+    <p class="placeholder-block__text" id="analytics-error-text">Failed to load analytics data.</p>
+    <button id="btn-retry-analytics" class="btn btn--secondary btn--sm" style="margin-top:16px;">Retry</button>
+</div>
+
+<!-- Analytics Dashboard Content Area -->
+<div id="analytics-content" style="display: none;">
+
+    <!-- Top Key Metrics Cards -->
+    <div class="stat-row">
+        <div class="stat-card">
+            <div class="stat-card__icon stat-card__icon--primary">📘</div>
+            <div class="stat-card__info">
+                <div class="stat-card__label">Total Subjects</div>
+                <div class="stat-card__value" id="metric-subjects">0</div>
+                <div class="stat-card__sub" id="metric-subjects-sub">Active courses</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__icon stat-card__icon--accent">📝</div>
+            <div class="stat-card__info">
+                <div class="stat-card__label">Total Topics</div>
+                <div class="stat-card__value" id="metric-topics">0</div>
+                <div class="stat-card__sub" id="metric-completed-topics-sub">0 completed</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__icon stat-card__icon--success">✅</div>
+            <div class="stat-card__info">
+                <div class="stat-card__label">Completion Rate</div>
+                <div class="stat-card__value" id="metric-completion-rate">0%</div>
+                <div class="stat-card__sub">Overall progress</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__icon stat-card__icon--warning">⏱️</div>
+            <div class="stat-card__info">
+                <div class="stat-card__label">Planned Study</div>
+                <div class="stat-card__value" id="metric-planned-hours">0h</div>
+                <div class="stat-card__sub" id="metric-sessions-sub">0 total sessions</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Syllabus & Session Breakdown Grid -->
+    <div class="dashboard-grid" style="margin-bottom: 24px;">
+
+        <!-- Topic Completion Progress Card -->
+        <div class="card">
+            <div class="card__header">
+                <h2 class="card__title">📊 Overall Syllabus Completion</h2>
+                <span class="card__badge" id="completion-badge">0%</span>
+            </div>
+            <div class="card__body">
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.88rem;">
+                    <span style="color:var(--color-text-secondary);">Syllabus Covered</span>
+                    <strong id="completion-ratio-text">0 / 0 topics</strong>
+                </div>
+                <div class="progress-bar-container" style="height: 14px;">
+                    <div id="overall-progress-bar" class="progress-bar-fill progress-bar-fill--success" style="width: 0%;"></div>
+                </div>
+
+                <div style="margin-top: 24px;">
+                    <h3 style="font-size:0.85rem; font-weight:700; color:var(--color-text-secondary); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:12px;">Topic Status Breakdown</h3>
+                    
+                    <div class="segmented-progress-bar" id="topic-status-segmented-bar">
+                        <div id="segment-completed" class="segmented-progress-bar__segment" style="width: 0%; background: var(--color-success);" title="Completed"></div>
+                        <div id="segment-in-progress" class="segmented-progress-bar__segment" style="width: 0%; background: var(--color-primary);" title="In Progress"></div>
+                        <div id="segment-not-started" class="segmented-progress-bar__segment" style="width: 100%; background: #CBD5E1;" title="Not Started"></div>
+                    </div>
+
+                    <div class="analytics-legend">
+                        <div class="analytics-legend__item">
+                            <span class="analytics-legend__dot" style="background:var(--color-success);"></span>
+                            <span>Completed: <strong id="legend-completed-count">0</strong></span>
+                        </div>
+                        <div class="analytics-legend__item">
+                            <span class="analytics-legend__dot" style="background:var(--color-primary);"></span>
+                            <span>In Progress: <strong id="legend-in-progress-count">0</strong></span>
+                        </div>
+                        <div class="analytics-legend__item">
+                            <span class="analytics-legend__dot" style="background:#CBD5E1;"></span>
+                            <span>Not Started: <strong id="legend-not-started-count">0</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Study Session Distribution Card -->
+        <div class="card">
+            <div class="card__header">
+                <h2 class="card__title">📅 Study Session Allocation</h2>
+                <span class="card__badge" id="session-count-badge">0 sessions</span>
+            </div>
+            <div class="card__body">
+                <div class="analytics-breakdown-row">
+                    <div>
+                        <strong style="color:var(--color-text); font-size:0.95rem;">Learning Sessions</strong>
+                        <div style="font-size:0.8rem; color:var(--color-text-secondary);">Core syllabus study & theory</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <strong id="session-learning-count" style="font-size:1.1rem; color:var(--color-primary);">0</strong>
+                        <div id="session-learning-hours" style="font-size:0.8rem; color:var(--color-text-muted);">0.0 hrs</div>
+                    </div>
+                </div>
+
+                <div class="analytics-breakdown-row">
+                    <div>
+                        <strong style="color:var(--color-text); font-size:0.95rem;">Revision Sessions</strong>
+                        <div style="font-size:0.8rem; color:var(--color-text-secondary);">Pre-exam buffer review blocks</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <strong id="session-revision-count" style="font-size:1.1rem; color:var(--color-danger);">0</strong>
+                        <div id="session-revision-hours" style="font-size:0.8rem; color:var(--color-text-muted);">0.0 hrs</div>
+                    </div>
+                </div>
+
+                <div class="analytics-breakdown-row">
+                    <div>
+                        <strong style="color:var(--color-text); font-size:0.95rem;">Completed Sessions</strong>
+                        <div style="font-size:0.8rem; color:var(--color-text-secondary);">Logged study history</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <strong id="session-completed-count" style="font-size:1.1rem; color:var(--color-success);">0</strong>
+                        <div id="session-completed-rate" style="font-size:0.8rem; color:var(--color-text-muted);">0%</div>
+                    </div>
+                </div>
+
+                <div class="analytics-breakdown-row">
+                    <div>
+                        <strong style="color:var(--color-text); font-size:0.95rem;">Pending Sessions</strong>
+                        <div style="font-size:0.8rem; color:var(--color-text-secondary);">Upcoming scheduled study blocks</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <strong id="session-pending-count" style="font-size:1.1rem; color:var(--color-warning);">0</strong>
+                        <div id="session-pending-hours" style="font-size:0.8rem; color:var(--color-text-muted);">0.0 hrs</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Subject Readiness & Exam Timeline -->
+    <div class="dashboard-grid dashboard-grid--wide">
+        <div class="card">
+            <div class="card__header">
+                <h2 class="card__title">📘 Subject Readiness & Countdown</h2>
+                <span class="card__badge" id="subject-breakdown-badge">0 subjects</span>
+            </div>
+            <div class="card__body card__body--flush">
+                <div id="subject-readiness-empty" class="placeholder-block" style="display: none;">
+                    <div class="placeholder-block__icon">📘</div>
+                    <p class="placeholder-block__text">No subjects found to analyze.</p>
+                </div>
+                <div id="subject-readiness-list">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
+{% endblock %}

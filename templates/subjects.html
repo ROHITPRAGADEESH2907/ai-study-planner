@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Subjects — AI Study Planner{% endblock %}
+{% block page_title %}Subjects{% endblock %}
+
+{% block content %}
+<div class="page-content__header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+    <div>
+        <h1 class="page-content__title">Subjects & Courses</h1>
+        <p class="page-content__subtitle">Manage courses, exam deadlines, and difficulty priorities.</p>
+    </div>
+    <div>
+        <button id="btn-open-add-modal" class="btn btn--primary">
+            <span>➕ Add Subject</span>
+        </button>
+    </div>
+</div>
+
+<!-- Alert notification message area -->
+<div id="subject-alert" class="alert alert--error" style="display: none;">
+    <span id="subject-alert-text"></span>
+    <button type="button" id="subject-alert-close" class="modal__close" style="font-size:1rem;">&times;</button>
+</div>
+
+<!-- Subjects Card -->
+<div class="card">
+    <div class="card__header">
+        <h2 class="card__title">All Subjects</h2>
+        <span class="card__badge" id="subjects-count-badge">0 subjects</span>
+    </div>
+    <div class="card__body card__body--flush">
+        <!-- Loading State -->
+        <div id="subjects-loading" class="placeholder-block">
+            <div class="placeholder-block__icon">⏳</div>
+            <p class="placeholder-block__text">Loading subjects...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div id="subjects-empty" class="placeholder-block" style="display: none;">
+            <div class="placeholder-block__icon">📘</div>
+            <p class="placeholder-block__text">No subjects found. Click "Add Subject" to begin tracking your exam syllabus.</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="subjects-error" class="placeholder-block" style="display: none;">
+            <div class="placeholder-block__icon">⚠️</div>
+            <p class="placeholder-block__text" id="subjects-error-text">Failed to load subjects. Please try again.</p>
+            <button id="btn-retry-subjects" class="btn btn--secondary btn--sm" style="margin-top:12px;">Retry</button>
+        </div>
+
+        <!-- Subjects Table Container -->
+        <div id="subjects-table-wrapper" class="subjects-table-container" style="display: none;">
+            <table class="subjects-table">
+                <thead>
+                    <tr>
+                        <th>Subject Name</th>
+                        <th>Exam Date</th>
+                        <th>Countdown</th>
+                        <th>Difficulty</th>
+                        <th>Topics</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="subjects-tbody">
+                    <!-- Populated dynamically via JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add / Edit Subject Modal -->
+<div id="subject-modal-overlay" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-subject-title">
+        <div class="modal__header">
+            <h3 id="modal-subject-title" class="modal__title">Add New Subject</h3>
+            <button id="modal-subject-close" class="modal__close" aria-label="Close modal">&times;</button>
+        </div>
+        <form id="subject-form">
+            <div class="modal__body">
+                <input type="hidden" id="subject-form-id" value="">
+                
+                <div class="form-group">
+                    <label class="form-label" for="subject-name">Subject Name <span style="color:var(--color-danger)">*</span></label>
+                    <input type="text" id="subject-name" class="form-input" placeholder="e.g., Computer Networks" required maxlength="100">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="subject-exam-date">Exam Date <span style="color:var(--color-danger)">*</span></label>
+                        <input type="date" id="subject-exam-date" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="subject-difficulty">Difficulty (1–5)</label>
+                        <select id="subject-difficulty" class="form-select">
+                            <option value="1">1 — Very Easy</option>
+                            <option value="2">2 — Easy</option>
+                            <option value="3" selected>3 — Moderate</option>
+                            <option value="4">4 — Challenging</option>
+                            <option value="5">5 — Very Hard</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="subject-color">Color Identifier</label>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <input type="color" id="subject-color" class="form-input-color" value="#4F46E5" style="width:56px; border-radius:var(--radius-sm); border:1px solid var(--color-border);">
+                        <span id="subject-color-preview" style="font-size:0.85rem; color:var(--color-text-secondary); font-family:monospace;">#4F46E5</span>
+                    </div>
+                </div>
+
+                <div id="modal-error-text" class="alert alert--error" style="display:none; margin-top:12px; margin-bottom:0;"></div>
+            </div>
+            <div class="modal__footer">
+                <button type="button" id="modal-subject-cancel" class="btn btn--secondary">Cancel</button>
+                <button type="submit" id="modal-subject-submit" class="btn btn--primary">
+                    <span id="modal-submit-label">Save Subject</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/subjects.js') }}"></script>
+{% endblock %}

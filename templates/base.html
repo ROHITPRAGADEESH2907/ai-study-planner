@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI Study Planner{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+<div class="app-layout">
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar__brand">
+            <div class="sidebar__logo">📚</div>
+            <span class="sidebar__title">AI Study Planner</span>
+        </div>
+
+        <nav class="sidebar__nav">
+            <div class="nav__section-label">Menu</div>
+            <a href="/" class="nav__link active" data-page="dashboard">
+                <span class="nav__link-icon">📊</span>
+                <span class="nav__link-label">Dashboard</span>
+            </a>
+            <a href="/subjects" class="nav__link" data-page="subjects">
+                <span class="nav__link-icon">📘</span>
+                <span class="nav__link-label">Subjects</span>
+            </a>
+            <a href="/topics" class="nav__link" data-page="topics">
+                <span class="nav__link-icon">📝</span>
+                <span class="nav__link-label">Topics</span>
+            </a>
+            <a href="/planner" class="nav__link" data-page="planner">
+                <span class="nav__link-icon">📅</span>
+                <span class="nav__link-label">Study Planner</span>
+            </a>
+
+            <div class="nav__section-label">Insights</div>
+            <a href="/analytics" class="nav__link" data-page="analytics">
+                <span class="nav__link-icon">📈</span>
+                <span class="nav__link-label">Analytics</span>
+            </a>
+            <a href="/settings" class="nav__link" data-page="settings">
+                <span class="nav__link-icon">⚙️</span>
+                <span class="nav__link-label">Settings</span>
+            </a>
+        </nav>
+
+        <div class="sidebar__footer">
+            AI Study Planner &middot; v1.0
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <button id="mobile-toggle" class="mobile-toggle" aria-label="Toggle menu">☰</button>
+                <h1 id="page-title" class="topbar__page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+            </div>
+            <div class="topbar__actions">
+                <div id="health-badge" class="topbar__status-badge">
+                    <span class="topbar__status-dot"></span> Checking…
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="page-content">
+            {% block content %}{% endblock %}
+        </div>
+
+    </main>
+</div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
